@@ -1,0 +1,20 @@
+services:
+
+  postgres:
+    image: 'postgres:15.0'
+    ports:
+      - "5432:5432"
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=song
+      - POSTGRES_DB=libSongs
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./migrations/init_songs_table.sql:/docker-entrypoint-initdb.d/init_songs_table.sql
+
+volumes:
+  postgres_data:
