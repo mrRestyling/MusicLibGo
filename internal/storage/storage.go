@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"fmt"
 	"log"
 	"music/internal/models"
 
@@ -20,8 +19,6 @@ func New(db *sqlx.DB) *Storage {
 
 func ConnectDB() *sqlx.DB {
 
-	connStr := "user=admin dbname=libSongs sslmode=disable password=song"
-
 	db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
 		// TODO: log.Println("Не удалось подключиться к базе данных")
@@ -39,45 +36,61 @@ func ConnectDB() *sqlx.DB {
 }
 
 func (s *Storage) AddSong(song models.AddSong) (string, error) {
-
-	const op = "internal.storage.AddSong"
-
-	// Проверяем, существует ли группа в базе данных
-	var groupId int64
-	err := s.Db.Get(&groupId, "SELECT id FROM groups WHERE name = $1", song.GroupName)
+	const query = `
+        WITH new_group AS (
+            INSERT INTO groups (name)
+            VALUES ($1)
+            ON CONFLICT (name) DO UPDATE
+            SET name = excluded.name
+            RETURNING id
+        )
+        INSERT INTO songs (title, group_id, release_date, text, link)
+        SELECT $2, (SELECT id FROM new_group), $3, $4, $5
+        ON CONFLICT (title, group_id) DO NOTHING
+    `
+	_, err := s.Db.Exec(query, song.GroupName, song.SongTitle, song.ReleaseDate, song.Text, song.Link)
 	if err != nil {
-		log.Println(op, GroupNotFound)
-		err = s.Db.Get(&groupId, "INSERT INTO groups (name) VALUES ($1) RETURNING id", song.GroupName)
-		if err != nil {
-			log.Println(op, Internal)
-			return Internal, ErrInternal
-		}
-
-		log.Println(AddGroupOK)
+		return "", err
 	}
-
-	var existingSongId int64
-	var songId int64
-
-	// Проверяем, существует ли уже такая песня в базе данных
-	err = s.Db.Get(&existingSongId, "SELECT id FROM songs WHERE title = $1 AND group_id = $2", song.SongTitle, groupId)
-
-	if err != nil {
-		log.Println(op, SongNotFound)
-		err = s.Db.Get(&songId, "INSERT INTO songs (title, group_id, release_date, text, link) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-			song.SongTitle, groupId, song.ReleaseDate, song.Text, song.Link)
-		if err != nil {
-			log.Println(op, Internal)
-			return Internal, ErrInternal
-		}
-		log.Println(AddSongOK)
-	} else {
-		log.Println(AlreadySong)
-		return AlreadySong, ErrClone
-	}
-
-	return fmt.Sprintf("Песня добавлена в базу данных, id: %d", songId), nil
+	return "Song added successfully", nil
 }
+
+// // Проверяем, существует ли группа в базе данных
+// var groupId int64
+// err := s.Db.Get(&groupId, "SELECT id FROM groups WHERE name = $1", song.GroupName)
+// if err != nil {
+// 	log.Println(op, GroupNotFound)
+// 	err = s.Db.Get(&groupId, "INSERT INTO groups (name) VALUES ($1) RETURNING id", song.GroupName)
+// 	if err != nil {
+// 		log.Println(op, Internal)
+// 		return Internal, ErrInternal
+// 	}
+
+// 	log.Println(AddGroupOK)
+// }
+
+// var existingSongId int64
+// var songId int64
+
+// // Проверяем, существует ли уже такая песня в базе данных
+// err = s.Db.Get(&existingSongId, "SELECT id FROM songs WHERE title = $1 AND group_id = $2", song.SongTitle, groupId)
+
+// if err != nil {
+// 	log.Println(op, SongNotFound)
+// 	err = s.Db.Get(&songId, "INSERT INTO songs (title, group_id, release_date, text, link) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+// 		song.SongTitle, groupId, song.ReleaseDate, song.Text, song.Link)
+// 	if err != nil {
+// 		log.Println(op, Internal)
+// 		return Internal, ErrInternal
+// 	}
+// 	log.Println(AddSongOK)
+// } else {
+// 	log.Println(AlreadySong)
+// 	return AlreadySong, ErrClone
+// }
+
+// return fmt.Sprintf("Песня добавлена в базу данных, id: %d", songId), nil
+// }
 
 func (s *Storage) Info(groupName string, songTitle string) (models.SongDetail, error) {
 	const op = "internal.storage.Info"
@@ -137,18 +150,6 @@ func (s *Storage) Update(song models.Song) (string, error) {
 func (s *Storage) Delete(song models.SongDel) (string, error) {
 	const op = "internal.storage.Delete"
 
-	// // Проверяем, существует ли песня в базе данных
-	// var songId int64
-	// // var songName string
-
-	// err := s.Db.Get(&songId, "SELECT id FROM songs WHERE id = $1 AND title = $2", song.ID, song.Title)
-	// if err != nil {
-	// 	log.Println(SongNotFound)
-	// 	return SongNotFound, ErrSongNotFound
-	// }
-	// log.Println(AlreadySong)
-
-	// Удаляем информацию о песне
 	req, err := s.Db.Exec("DELETE FROM songs WHERE id = $1 AND title = $2", song.ID, song.Title)
 	if err != nil {
 		log.Println(op, NoDelete)
