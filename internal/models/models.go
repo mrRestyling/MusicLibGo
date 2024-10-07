@@ -32,3 +32,22 @@ type SongDel struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`
 }
+
+type Lib struct {
+	ID          uint   `json:"ID песни"`
+	Title       string `json:"Название песни"`
+	Group       string `json:"Группа"`
+	ReleaseDate string `json:"Дата релиза"`
+	Text        string `json:"Текст песни"`
+	Link        string `json:"Ссылка на песню"`
+}
+
+type filter struct {
+	ID          uint   `json:"id"`
+	Title       string `json:"title"`
+	Group       string `json:"group"`
+	ReleaseDate string `json:"release"`
+	// Text        string `json:"text"`
+	// Link        string `json:"link"`
+	Pagination int `json:"pagination"`
+}

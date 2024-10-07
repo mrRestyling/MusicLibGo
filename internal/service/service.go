@@ -15,6 +15,7 @@ type StorageInt interface {
 	Info(groupName string, songTitle string) (models.SongDetail, error)
 	Update(song models.Song) (string, error)
 	Delete(song models.SongDel) (string, error)
+	GetAllSongs(filter string) ([]models.Lib, error)
 }
 
 func New(s StorageInt) *Service {
@@ -123,5 +124,18 @@ func (s *Service) Delete(song models.SongDel) (string, error) {
 	}
 
 	return result, nil
+}
 
+func (s *Service) GetAllSongs(filter string) ([]models.Lib, error) {
+	const op = "internal.service.GetAllSongs"
+
+	log.Println(GoStorage)
+
+	// if filter == "" {
+
+	result, err := s.Storage.GetAllSongs(filter)
+	if err != nil {
+		return []models.Lib{}, err
+	}
+	return result, nil
 }

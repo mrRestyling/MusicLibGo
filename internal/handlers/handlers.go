@@ -18,6 +18,7 @@ type ServiceInt interface {
 	Info(song models.Song) (string, error)
 	Update(song models.Song) (string, error)
 	Delete(song models.SongDel) (string, error)
+	GetAllSongs(filter string) ([]models.Lib, error)
 }
 
 func New(s ServiceInt) *Handlers {
@@ -111,4 +112,20 @@ func (h *Handlers) Delete(c echo.Context) error {
 
 	log.Println(Success)
 	return c.JSON(http.StatusOK, result)
+}
+
+func (h *Handlers) InfoAll(c echo.Context) error {
+	const op = "internal.handlers.InfoAll"
+	log.Println(op, AllINFO)
+
+	filter := c.QueryParam("filter")
+	// pagination := c.QueryParam("pagination")
+
+	songs, err := h.Service.GetAllSongs(filter)
+	if err != nil {
+		return err
+	}
+
+	log.Println(Success)
+	return c.JSON(http.StatusOK, songs)
 }

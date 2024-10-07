@@ -6,6 +6,7 @@ func (h *Handlers) Routes() {
 	// Добавление новой песни
 	h.E.POST("/addsong", h.AddSong)
 	h.E.GET("/info", h.Info)
+	h.E.GET("/infoall", h.InfoAll)
 	h.E.PUT("/update", h.Update)
 	h.E.DELETE("/delete", h.Delete)
 
