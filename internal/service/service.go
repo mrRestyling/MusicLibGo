@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"music/internal/models"
+	"strings"
 )
 
 type Service struct {
@@ -82,6 +83,11 @@ func (s *Service) Info(song models.Song) (string, error) {
 
 func (s *Service) Update(song models.Song) (string, error) {
 	const op = "internal.service.Update"
+
+	if song.ID == 0 {
+		log.Println(op, IDEmpty)
+		return IDEmpty, ErrIDEmpty
+	}
 
 	if song.Group == "" {
 		log.Println(op, GroupEmpty)
@@ -171,13 +177,18 @@ func (s *Service) Text(info models.TextSong) (string, error) {
 		info.Text = ""
 	}
 
-	resultSt, err := s.Storage.Text(info)
+	resultStorage, err := s.Storage.Text(info)
 	if err != nil {
-		return "", err
+		return "не удалось вернуть текст по заданным параметрам", err
 	}
 
-	result := resultSt.Text
+	result := strings.Split(resultStorage.Text, "\n\n")
 
-	return result, nil
+	if info.Couplet > len(result) {
+		return result[len(result)-1], nil
+	}
 
+	log.Println(result)
+
+	return result[info.Couplet-1], nil
 }
