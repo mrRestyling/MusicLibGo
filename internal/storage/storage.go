@@ -151,34 +151,45 @@ func (s *Storage) Delete(song models.SongDel) (string, error) {
 	return DeleteOK, nil
 }
 
-func (s *Storage) GetAllSongs(filter string) ([]models.Lib, error) {
+func (s *Storage) GetAllSongs(filter models.Filter) (models.SongResponse, error) {
 	const op = "internal.storage.GetAllSongs"
 
 	log.Println("находим все песни в базе данных")
 
 	var result []models.Lib
+	var totalCount int
+	var responce models.SongResponse
+
 	query := `
-    SELECT s.id, s.title, g.name AS group_name, s.release_date, s.text, s.link
+    SELECT s.id, s.title, g.name AS group_name, s.release_date, s.text, s.link,
+    COUNT(*) OVER () AS total_count
     FROM songs s
     JOIN groups g ON s.group_id = g.id
     WHERE ($1 = '' OR s.title ILIKE $1 OR g.name ILIKE $1 OR s.text ILIKE $1 OR s.link ILIKE $1)
+    LIMIT $2 OFFSET $3
 `
 
-	rows, err := s.Db.Query(query, filter)
+	rows, err := s.Db.Query(query, filter.Search, filter.Limit, filter.Offset)
 	if err != nil {
 		log.Println(op, "не удалось выполнить запрос")
-		return []models.Lib{}, err
+		return responce, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var song models.Lib
-		err := rows.Scan(&song.ID, &song.Title, &song.Group, &song.ReleaseDate, &song.Text, &song.Link)
+		err := rows.Scan(&song.ID, &song.Title, &song.Group, &song.ReleaseDate, &song.Text, &song.Link, &totalCount)
 		if err != nil {
 			log.Println(op, "не удалось создать список")
-			return []models.Lib{}, err
+			return responce, err
 		}
 		result = append(result, song)
 	}
-	return result, nil
+
+	responce = models.SongResponse{
+		TotalCount: totalCount,
+		Songs:      result,
+	}
+
+	return responce, nil
 }

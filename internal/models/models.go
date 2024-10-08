@@ -42,12 +42,13 @@ type Lib struct {
 	Link        string `json:"Ссылка на песню"`
 }
 
-type filter struct {
-	ID          uint   `json:"id"`
-	Title       string `json:"title"`
-	Group       string `json:"group"`
-	ReleaseDate string `json:"release"`
-	// Text        string `json:"text"`
-	// Link        string `json:"link"`
-	Pagination int `json:"pagination"`
+type Filter struct {
+	Search string `json:"search"`
+	Limit  int    `json:"limit"`
+	Offset int    `json:"offset"`
+}
+
+type SongResponse struct {
+	TotalCount int   `json:"общее количество"`
+	Songs      []Lib `json:"фильтрация по заданным параметрам"`
 }
