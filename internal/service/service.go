@@ -16,6 +16,7 @@ type StorageInt interface {
 	Update(song models.Song) (string, error)
 	Delete(song models.SongDel) (string, error)
 	GetAllSongs(filter models.Filter) (models.SongResponse, error)
+	Text(info models.TextSong) (models.TextSong, error)
 }
 
 func New(s StorageInt) *Service {
@@ -104,14 +105,15 @@ func (s *Service) Update(song models.Song) (string, error) {
 }
 
 func (s *Service) Delete(song models.SongDel) (string, error) {
+	const op = "internal.service.Delete"
 
 	if song.ID == 0 {
-		log.Println(IDEmpty)
+		log.Println(op, IDEmpty)
 		return IDEmpty, ErrIDEmpty
 	}
 
 	if song.Title == "" {
-		log.Println(SongEmpty)
+		log.Println(op, SongEmpty)
 		return SongEmpty, ErrSongEmpty
 	}
 
@@ -140,7 +142,42 @@ func (s *Service) GetAllSongs(filter models.Filter) (models.SongResponse, error)
 
 	result, err := s.Storage.GetAllSongs(filter)
 	if err != nil {
+		log.Println(op, err)
 		return models.SongResponse{}, err
 	}
 	return result, nil
+}
+
+func (s *Service) Text(info models.TextSong) (string, error) {
+	const op = "internal.service.Text"
+
+	log.Println(info)
+
+	if info.Title == "" {
+		log.Println(op, SongEmpty)
+		return SongEmpty, ErrSongEmpty
+	}
+
+	if info.Group == "" {
+		log.Println(op, GroupEmpty)
+		return GroupEmpty, ErrGroupEmpty
+	}
+
+	if info.Couplet == 0 {
+		info.Couplet = 1
+	}
+
+	if info.Text != "" {
+		info.Text = ""
+	}
+
+	resultSt, err := s.Storage.Text(info)
+	if err != nil {
+		return "", err
+	}
+
+	result := resultSt.Text
+
+	return result, nil
+
 }

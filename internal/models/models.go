@@ -52,3 +52,10 @@ type SongResponse struct {
 	TotalCount int   `json:"общее количество"`
 	Songs      []Lib `json:"фильтрация по заданным параметрам"`
 }
+
+type TextSong struct {
+	Group   string `json:"Группа"`
+	Title   string `json:"Песня"`
+	Couplet int    `json:"Номер куплета"`
+	Text    string `json:"Текст"`
+}

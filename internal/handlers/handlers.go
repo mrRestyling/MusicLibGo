@@ -19,6 +19,7 @@ type ServiceInt interface {
 	Update(song models.Song) (string, error)
 	Delete(song models.SongDel) (string, error)
 	GetAllSongs(filter models.Filter) (models.SongResponse, error)
+	Text(info models.TextSong) (string, error)
 }
 
 func New(s ServiceInt) *Handlers {
@@ -133,4 +134,27 @@ func (h *Handlers) InfoAll(c echo.Context) error {
 
 	log.Println(Success)
 	return c.JSON(http.StatusOK, songs)
+}
+
+func (h *Handlers) Text(c echo.Context) error {
+	const op = "internal.handlers.Info"
+	log.Println(op, TextInfo)
+
+	var info models.TextSong
+
+	if err := c.Bind(&info); err != nil {
+		log.Println(BadJSON)
+		log.Printf("%s: %v", op, err)
+		return c.JSON(http.StatusBadRequest, BadRequest)
+	}
+
+	log.Println(GoService)
+	// Получаем данные из сервисного слоя
+	result, err := h.Service.Text(info)
+	if err != nil {
+		return h.ModelError(c, err, result)
+	}
+
+	log.Println(Success)
+	return c.JSON(http.StatusOK, result)
 }

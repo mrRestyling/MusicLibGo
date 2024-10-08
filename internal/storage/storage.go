@@ -193,3 +193,20 @@ func (s *Storage) GetAllSongs(filter models.Filter) (models.SongResponse, error)
 
 	return responce, nil
 }
+
+func (s *Storage) Text(info models.TextSong) (models.TextSong, error) {
+	const op = "internal.storage.Text"
+
+	var result models.TextSong
+
+	query := `
+    SELECT text FROM songs WHERE title = $1 AND group_id = (SELECT id FROM groups WHERE name = $2)
+`
+	err := s.Db.Get(&result.Text, query, info.Title, info.Group)
+	if err != nil {
+		log.Println(op, err)
+		return models.TextSong{}, err
+	}
+
+	return result, nil
+}
