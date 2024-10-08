@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"music/internal/handlers"
 	"music/internal/service"
 	"music/internal/storage"
@@ -15,7 +16,7 @@ func main() {
 
 	// База данных
 	connectionDB := storage.ConnectDB()
-	defer connectionDB.Close() // TODO Перенести в GS
+
 	db := storage.New(connectionDB)
 
 	// Сервисный слой
@@ -33,20 +34,20 @@ func main() {
 	signal.Notify(GS, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	<-GS
 
-	// TODO log
+	log.Println("Graceful shutdown server...")
 
 	err := db.Db.Close()
 	if err != nil {
-		// TODO log
-		panic(err)
+		log.Fatal("error close db: ", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err = h.E.Shutdown(ctx); err != nil {
-		// TODO log
-		panic(err)
+		log.Fatal("error shutdown server: ", err)
 	}
+
+	log.Println("Server exiting")
 
 }

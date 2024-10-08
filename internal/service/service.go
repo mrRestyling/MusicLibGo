@@ -185,10 +185,8 @@ func (s *Service) Text(info models.TextSong) (string, error) {
 	result := strings.Split(resultStorage.Text, "\n\n")
 
 	if info.Couplet > len(result) {
-		return result[len(result)-1], nil
+		info.Couplet = len(result)
 	}
 
-	log.Println(result)
-
-	return result[info.Couplet-1], nil
+	return fmt.Sprintf("Песня: %s\n Группа: %s\n Куплет: %d\n Текст: %s", info.Title, info.Group, info.Couplet, result[info.Couplet-1]), nil
 }
