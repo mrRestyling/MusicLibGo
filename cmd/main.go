@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"music/config"
 	"music/internal/handlers"
 	"music/internal/service"
 	"music/internal/storage"
@@ -27,7 +28,7 @@ func main() {
 	h.Routes()
 
 	// Запуск сервера
-	go h.E.Start(":8080")
+	go h.E.Start(config.Host() + ":" + config.Port())
 
 	// GS - Graceful Shutdown
 	GS := make(chan os.Signal, 1)
