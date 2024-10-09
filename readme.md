@@ -1,25 +1,25 @@
 # MusicAPI
 
 
+## Порядок запуска приложения
+
 1. Создайте и заполните файл `.env` (пример `.env.sample`)
 
 2. Запустите docker-compose (Команда: `docker-compose up -d`)
 
 
-Использование пакетов:
+## Использование пакетов:
 
-1. добавляем пакет Эхо:
+1. пакет Эхо:
 go get github.com/labstack/echo
 
-2. добавляем пакет БД:
+2. пакет sqlx:
 go get github.com/jmoiron/sqlx
 
-3. добавляем драйвер Постгрес:
+3. драйвер Постгрес:
 go get github.com/lib/pq
 
 
-
-# musicLibGo
 
 # ЗАДАЧА
 
