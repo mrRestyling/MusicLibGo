@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"music/internal/models"
+	"os"
 
 	"github.com/jmoiron/sqlx"
 
@@ -20,14 +21,14 @@ func New(db *sqlx.DB) *Storage {
 
 func ConnectDB() *sqlx.DB {
 
-	db, err := sqlx.Connect("postgres", connStr)
+	db, err := sqlx.Connect("postgres", "user="+os.Getenv("POSTGRES_USER")+" dbname="+os.Getenv("POSTGRES_DB")+" sslmode=disable password="+os.Getenv("POSTGRES_PASSWORD"))
 	if err != nil {
-		log.Fatal("Не удалось подключиться к базе данных")
+		log.Fatal("Не удалось подключиться к базе данных: ", err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatal("Не удалось подключиться к базе данных")
+		log.Fatal("Не удалось подключиться к базе данных: ", err)
 	}
 
 	return db
