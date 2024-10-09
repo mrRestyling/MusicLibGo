@@ -1,10 +1,12 @@
-Порядок :
-
-1. TODO Выполнить миграцию БД (Создать мигратор)
+# MusicAPI
 
 
+1. Создайте и заполните файл `.env` (пример `.env.sample`)
 
-Добавление пакетов:
+2. Запустите docker-compose (Команда: `docker-compose up -d`)
+
+
+Использование пакетов:
 
 1. добавляем пакет Эхо:
 go get github.com/labstack/echo
@@ -15,13 +17,6 @@ go get github.com/jmoiron/sqlx
 3. добавляем драйвер Постгрес:
 go get github.com/lib/pq
 
-
-
-
-Дополнительно:
-
-Используем драйвер Постгрес:
-_ "github.com/lib/pq"
 
 
 # musicLibGo

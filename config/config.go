@@ -5,7 +5,8 @@ import "os"
 func Host() string {
 	host := os.Getenv("HOST_SONG")
 	if host == "" {
-		host = "localhost"
+		host = "0.0.0.0"
+
 	}
 	return host
 }

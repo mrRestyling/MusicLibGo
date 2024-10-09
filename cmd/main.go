@@ -11,17 +11,15 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	// файл .env
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// // файл .env (локальная сборка)
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
 	// База данных
 	connectionDB := storage.ConnectDB()
@@ -45,7 +43,7 @@ func main() {
 
 	log.Println("Graceful shutdown server...")
 
-	err = db.Db.Close()
+	err := db.Db.Close()
 	if err != nil {
 		log.Fatal("error close db: ", err)
 	}
