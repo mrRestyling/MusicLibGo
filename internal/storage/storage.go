@@ -21,7 +21,8 @@ func New(db *sqlx.DB) *Storage {
 
 func ConnectDB() *sqlx.DB {
 
-	db, err := sqlx.Connect("postgres", "host=postgres user="+os.Getenv("POSTGRES_USER")+" dbname="+os.Getenv("POSTGRES_DB")+" sslmode=disable password="+os.Getenv("POSTGRES_PASSWORD"))
+	db, err := sqlx.Connect("postgres", "host="+os.Getenv("HOST_SONG")+" user="+os.Getenv("POSTGRES_USER")+" dbname="+os.Getenv("POSTGRES_DB")+" sslmode=disable password="+os.Getenv("POSTGRES_PASSWORD"))
+	// db, err := sqlx.Connect("postgres", "host=postgres user="+os.Getenv("POSTGRES_USER")+" dbname="+os.Getenv("POSTGRES_DB")+" sslmode=disable password="+os.Getenv("POSTGRES_PASSWORD"))
 	if err != nil {
 		log.Fatal("Не удалось подключиться к базе данных: ", err)
 	}
