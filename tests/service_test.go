@@ -27,7 +27,7 @@ func (s *TestService) Info(groupName string, songTitle string) (models.SongDetai
 
 }
 
-func TestAddSong(t *testing.T) {
+func TestAddSongServ(t *testing.T) {
 
 	// Создаем тестовую структуру
 	testService := &TestService{}
@@ -68,7 +68,7 @@ func TestAddSong(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestInfo(t *testing.T) {
+func TestInfoServ(t *testing.T) {
 
 	testServ := &TestService{}
 	srv := service.New(testServ)
