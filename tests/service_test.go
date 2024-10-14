@@ -95,6 +95,14 @@ func TestInfo(t *testing.T) {
 	_, err = srv.Info(emptyReq)
 	assert.Error(t, err)
 
+	// 2+. Тест invalid song
+	invalidSong := models.Song{
+		Title: "",
+		Group: "",
+	}
+	_, err = srv.Info(invalidSong)
+	assert.Error(t, err)
+
 	// 3. Тест emptyGroup
 	emptyGroup := models.Song{
 		Title: "TEST",
@@ -107,6 +115,11 @@ func TestInfo(t *testing.T) {
 		Group: "TEST",
 	}
 	_, err = srv.Info(emptySong)
+	assert.Error(t, err)
+
+	// 5. Тест nil
+	nilSong := models.Song{}
+	_, err = srv.Info(nilSong)
 	assert.Error(t, err)
 
 }
