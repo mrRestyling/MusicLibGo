@@ -22,7 +22,7 @@ func TestAddSong(t *testing.T) {
 	testStorage := &TestStorage{}
 	svc := service.New(testStorage)
 
-	// Создаем тестовые данные
+	// 1. Тест Happy
 	testSong := models.AddSong{
 		GroupName: "testGroup",
 		SongTitle: "testSong",
@@ -37,8 +37,23 @@ func TestAddSong(t *testing.T) {
 	}
 	assert.NoError(t, err)
 
+	// 2. Тест emptyReq
 	emptyReq := models.AddSong{}
 	_, err = svc.AddSong(emptyReq)
+	assert.Error(t, err)
+
+	// 3. Тест emptyGroup
+	emptyGroup := models.AddSong{
+		SongTitle: "SongTest",
+	}
+	_, err = svc.AddSong(emptyGroup)
+	assert.Error(t, err)
+
+	// 4. Тест emptySong
+	emptySong := models.AddSong{
+		GroupName: "SongTest",
+	}
+	_, err = svc.AddSong(emptySong)
 	assert.Error(t, err)
 
 }
