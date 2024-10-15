@@ -53,7 +53,7 @@ func (s *Service) AddSong(song models.AddSong) (string, error) {
 		}
 	}
 
-	return result, nil
+	return fmt.Sprintf("Песня добавлена в базу данных, id: %s", result), nil
 }
 
 func (s *Service) Info(song models.Song) (string, error) {

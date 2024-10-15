@@ -43,8 +43,8 @@ func TestAddSongServ(t *testing.T) {
 	result, err := svc.AddSong(testSong)
 
 	// Проверяем, что метод вернул ожидаемые значения
-	if result != "ADD" {
-		t.Errorf("expected 'ADD', got %s", result)
+	if result != "Песня добавлена в базу данных, id: ADD" {
+		t.Errorf("expected 'Песня добавлена в базу данных, id: ADD', got %s", result)
 	}
 	assert.NoError(t, err)
 
@@ -121,5 +121,4 @@ func TestInfoServ(t *testing.T) {
 	nilSong := models.Song{}
 	_, err = srv.Info(nilSong)
 	assert.Error(t, err)
-
 }

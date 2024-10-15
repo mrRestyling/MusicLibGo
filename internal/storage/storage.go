@@ -1,10 +1,10 @@
 package storage
 
 import (
-	"fmt"
 	"log"
 	"music/internal/models"
 	"os"
+	"strconv"
 
 	"github.com/jmoiron/sqlx"
 
@@ -74,7 +74,8 @@ func (s *Storage) AddSong(song models.AddSong) (string, error) {
 		return AlreadySong, ErrClone
 	}
 
-	return fmt.Sprintf("Песня добавлена в базу данных, id: %d", songId), nil
+	// return fmt.Sprintf("Песня добавлена в базу данных, id: %d", songId), nil
+	return strconv.Itoa(int(songId)), nil
 }
 
 func (s *Storage) Info(groupName string, songTitle string) (models.SongDetail, error) {
