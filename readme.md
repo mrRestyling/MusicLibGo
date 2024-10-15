@@ -19,6 +19,9 @@ go get github.com/jmoiron/sqlx
 3. драйвер Постгрес:
 go get github.com/lib/pq
 
+4. Моки для sqlx 
+go get -u github.com/zhashkevych/go-sqlxmock@master
+
 
 
 # ЗАДАЧА

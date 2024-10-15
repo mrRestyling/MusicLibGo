@@ -45,10 +45,22 @@ func (s *Storage) AddSong(song models.AddSong) (string, error) {
 	err := s.Db.Get(&groupId, "SELECT id FROM groups WHERE name = $1", song.GroupName)
 	if err != nil {
 		log.Println(op, GroupNotFound)
-		err = s.Db.Get(&groupId, "INSERT INTO groups (name) VALUES ($1) RETURNING id", song.GroupName)
+		// err = s.Db.Get(&groupId, "INSERT INTO groups (name) VALUES ($1) RETURNING id", song.GroupName)
+		// row := s.Db.QueryRow("INSERT INTO groups (name) VALUES ($1) RETURNING id", song.GroupName)
+		// err = row.Scan(&groupId)
+		res, err := s.Db.Exec("INSERT INTO groups (name) VALUES ($1)", song.GroupName)
 		if err != nil {
+			log.Println(song.GroupName)
+			log.Println("groupId: ", groupId)
+			log.Println("Группа не создана")
 			log.Println(op, Internal)
 			return Internal, ErrInternal
+		}
+
+		groupId, err = res.LastInsertId()
+		if err != nil {
+			log.Println("не удалось")
+			// return Internal, ErrInternal
 		}
 
 		log.Println(AddGroupOK)
@@ -65,6 +77,7 @@ func (s *Storage) AddSong(song models.AddSong) (string, error) {
 		err = s.Db.Get(&songId, "INSERT INTO songs (title, group_id, release_date, text, link) VALUES ($1, $2, $3, $4, $5) RETURNING id",
 			song.SongTitle, groupId, song.ReleaseDate, song.Text, song.Link)
 		if err != nil {
+			log.Println("Песня не вставлена")
 			log.Println(op, Internal)
 			return Internal, ErrInternal
 		}
@@ -74,7 +87,6 @@ func (s *Storage) AddSong(song models.AddSong) (string, error) {
 		return AlreadySong, ErrClone
 	}
 
-	// return fmt.Sprintf("Песня добавлена в базу данных, id: %d", songId), nil
 	return strconv.Itoa(int(songId)), nil
 }
 
