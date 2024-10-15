@@ -1,5 +1,16 @@
 # MusicAPI
 
+## Технологии и инструменты
+
+- PostgreSQL
+- Docker
+- Тестирование (Unit,Mock)
+- Echo
+- Sqlx
+- Env
+- JSON
+- Логирование
+- Graceful shutdown
 
 ## Порядок запуска приложения
 

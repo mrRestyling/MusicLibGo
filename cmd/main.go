@@ -17,7 +17,7 @@ import (
 
 func main() {
 
-	// // файл .env (локальная сборка)
+	// файл .env (локальная сборка)
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
