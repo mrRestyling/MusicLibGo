@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"database/sql"
 	"log"
 	"music/internal/models"
 	"os"
@@ -44,26 +45,19 @@ func (s *Storage) AddSong(song models.AddSong) (string, error) {
 	var groupId int64
 	err := s.Db.Get(&groupId, "SELECT id FROM groups WHERE name = $1", song.GroupName)
 	if err != nil {
-		log.Println(op, GroupNotFound)
-		// err = s.Db.Get(&groupId, "INSERT INTO groups (name) VALUES ($1) RETURNING id", song.GroupName)
-		// row := s.Db.QueryRow("INSERT INTO groups (name) VALUES ($1) RETURNING id", song.GroupName)
-		// err = row.Scan(&groupId)
-		res, err := s.Db.Exec("INSERT INTO groups (name) VALUES ($1)", song.GroupName)
-		if err != nil {
-			log.Println(song.GroupName)
-			log.Println("groupId: ", groupId)
-			log.Println("Группа не создана")
+		if err == sql.ErrNoRows {
+			// Группа не найдена, вставляем новую запись
+			err = s.Db.QueryRow("INSERT INTO groups (name) VALUES ($1) ON CONFLICT(name) DO NOTHING RETURNING id", song.GroupName).Scan(&groupId)
+			if err != nil {
+				log.Println(op, Internal)
+				return Internal, ErrInternal
+			}
+
+			log.Println(AddGroupOK)
+		} else {
 			log.Println(op, Internal)
 			return Internal, ErrInternal
 		}
-
-		groupId, err = res.LastInsertId()
-		if err != nil {
-			log.Println("не удалось")
-			// return Internal, ErrInternal
-		}
-
-		log.Println(AddGroupOK)
 	}
 
 	var existingSongId int64
@@ -71,17 +65,19 @@ func (s *Storage) AddSong(song models.AddSong) (string, error) {
 
 	// Проверяем, существует ли уже такая песня в базе данных
 	err = s.Db.Get(&existingSongId, "SELECT id FROM songs WHERE title = $1 AND group_id = $2", song.SongTitle, groupId)
-
 	if err != nil {
-		log.Println(op, SongNotFound)
-		err = s.Db.Get(&songId, "INSERT INTO songs (title, group_id, release_date, text, link) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-			song.SongTitle, groupId, song.ReleaseDate, song.Text, song.Link)
-		if err != nil {
-			log.Println("Песня не вставлена")
+		if err == sql.ErrNoRows {
+			err = s.Db.QueryRow("INSERT INTO songs (title, group_id, release_date, text, link) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+				song.SongTitle, groupId, song.ReleaseDate, song.Text, song.Link).Scan(&songId)
+			if err != nil {
+				log.Println(op, Internal)
+				return Internal, ErrInternal
+			}
+			log.Println(AddSongOK)
+		} else {
 			log.Println(op, Internal)
 			return Internal, ErrInternal
 		}
-		log.Println(AddSongOK)
 	} else {
 		log.Println(AlreadySong)
 		return AlreadySong, ErrClone

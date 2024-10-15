@@ -1,9 +1,11 @@
 package tests
 
 import (
+	"database/sql"
 	"log"
 	"music/internal/models"
 	"music/internal/storage"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -52,49 +54,27 @@ func TestAddSongM(t *testing.T) {
 			id: 2,
 
 			mockBehavior: func(args args, id int) {
-				rows := sqlmock.NewRows([]string{"id"})
-				mock.ExpectQuery("SELECT id FROM groups WHERE name = $1").
-					WithArgs(args.song.GroupName).
-					WillReturnRows(rows)
 
-				log.Println("1---")
-				log.Println(rows)
-				log.Println(err)
-				log.Println()
+				mock.ExpectQuery("SELECT id FROM groups WHERE name = \\$1").
+					WithArgs(args.song.GroupName).
+					WillReturnError(sql.ErrNoRows)
 
 				// Если группа не найдена, имитируем вставку новой группы
-				rows = sqlmock.NewRows([]string{"id"}).AddRow(id)
+				rows := sqlmock.NewRows([]string{"id"}).AddRow(id)
 				mock.ExpectQuery("INSERT INTO groups").
 					WithArgs(args.song.GroupName).
 					WillReturnRows(rows)
 
-				log.Println("2---")
-				log.Println(rows)
-				log.Println(err)
-				log.Println()
+				// Имитируем, что песня не существует
+				mock.ExpectQuery("SELECT id FROM songs WHERE title = \\$1 AND group_id = \\$2").
+					WithArgs(args.song.SongTitle, id).
+					WillReturnError(sql.ErrNoRows)
 
-				// Mock song does not exist
-				rows = sqlmock.NewRows([]string{"id"})
-				mock.ExpectQuery("SELECT id FROM songs WHERE title = $1 AND group_id = $2").
-					WithArgs(args.song.SongTitle, 1).
-					WillReturnRows(rows)
-
-				log.Println("3---")
-				log.Println(rows)
-				log.Println(err)
-				log.Println()
-
-				// Mock insert song
+				// Имитируем вставку песни
 				rows = sqlmock.NewRows([]string{"id"}).AddRow(id)
 				mock.ExpectQuery("INSERT INTO songs").
-					WithArgs(args.song.SongTitle, 1, args.song.ReleaseDate, args.song.Text, args.song.Link).
+					WithArgs(args.song.SongTitle, id, args.song.ReleaseDate, args.song.Text, args.song.Link).
 					WillReturnRows(rows)
-
-				log.Println("4---")
-				log.Println(rows)
-				log.Println(err)
-				log.Println()
-
 			},
 		},
 	}
@@ -108,7 +88,8 @@ func TestAddSongM(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, testCase.id, got)
+				idInt, _ := strconv.Atoi(got)
+				assert.Equal(t, testCase.id, idInt)
 			}
 
 		})
