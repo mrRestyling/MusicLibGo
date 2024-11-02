@@ -1,4 +1,4 @@
-FROM golang:latest1
+FROM golang:latest
 
 # Установка рабочей директории
 WORKDIR /app
